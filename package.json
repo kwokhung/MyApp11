@@ -1,0 +1,8 @@
+{
+  "name": "MyApp11",
+  "version": "0.0.1",
+  "description": "My App 11",
+  "dependencies": {
+    "socket.io-client": "*"
+  }
+}
