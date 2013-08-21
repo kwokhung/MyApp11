@@ -53,7 +53,7 @@ var main = function () {
                     appendMessage("someone.joined", data.who);
                 });
 
-                iAmResourceMonitor();
+                iAm();
             });
 
             socket.on("connect_failed", function (e) {
@@ -85,7 +85,7 @@ var main = function () {
             });
         };
 
-        var iAmResourceMonitor = function () {
+        var iAm = function () {
             socket.emit("i.am", { who: who }, logMessage);
         };
 
