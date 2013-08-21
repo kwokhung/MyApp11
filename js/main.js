@@ -49,6 +49,10 @@ var main = function () {
                     appendMessage("someone.said", data.what + " by " + data.who);
                 });
 
+                socket.on("someone.joined", function (data) {
+                    appendMessage("someone.joined", data.who);
+                });
+
                 iAmResourceMonitor();
             });
 
