@@ -28,7 +28,12 @@ var main = function () {
                 appendMessage("System", "connect");
 
                 socket.on("heartbeat", function (data) {
-                    appendMessage("heartbeat", data.time);
+                    appendMessage("heartbeat", data.when);
+
+                    socket.emit("heartbeat", {
+                        who: who,
+                        when: new Date().getTime()
+                    }, logMessage);
                 });
 
                 socket.on("you.are", function (data) {
@@ -39,9 +44,9 @@ var main = function () {
                     appendMessage("he.is", data.who);
                 });
 
-                socket.on("they.are", function (data) {
+                socket.on("there.are", function (data) {
                     array.forEach(data.who, function (item, index) {
-                        appendMessage("they.are", item.id);
+                        appendMessage("there.are", item.id);
                     });
                 });
 
@@ -51,6 +56,10 @@ var main = function () {
 
                 socket.on("someone.joined", function (data) {
                     appendMessage("someone.joined", data.who);
+                });
+
+                socket.on("someone.beat", function (data) {
+                    appendMessage("someone.beat", data.when + " by " + data.who);
                 });
 
                 iAm();
@@ -86,11 +95,18 @@ var main = function () {
         };
 
         var iAm = function () {
-            socket.emit("i.am", { who: who }, logMessage);
+            socket.emit("i.am", {
+                who: who,
+                when: new Date().getTime()
+            }, logMessage);
         };
 
         var tellOther = function (what) {
-            socket.emit("tell.other", { who: who, what: what }, logMessage);
+            socket.emit("tell.other", {
+                who: who,
+                what: what,
+                when: new Date().getTime()
+            }, logMessage);
         };
 
         var whoAreThere = function () {
