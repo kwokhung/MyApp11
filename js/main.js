@@ -52,6 +52,25 @@ var main = function () {
 
                 socket.on("someone.said", function (data) {
                     appendMessage("someone.said", data.what + " by " + data.who);
+
+                    if (typeof data.what.toDo != "undefined" && data.what.toDo != null) {
+                        switch (data.what.toDo) {
+                            case "updateYourDetails":
+                                var enhancedData = {
+                                    whom: data.who,
+                                    what: {
+                                        toDo: "updateHisDetails",
+                                        name: who,
+                                        platform: process.platform,
+                                        arch: process.arch
+                                }
+                                };
+
+                                tellSomeone(enhancedData);
+
+                                break;
+                        }
+                    }
                 });
 
                 socket.on("someone.joined", function (data) {
@@ -94,23 +113,56 @@ var main = function () {
             });
         };
 
-        var iAm = function () {
-            socket.emit("i.am", {
-                who: who,
-                when: new Date().getTime()
-            }, logMessage);
+        var iAm = function (data) {
+            if (typeof data != "undefined" && typeof data.who != "undefined" && data.who != null && data.who != "") {
+                if (socket != null) {
+                    socket.emit("i.am", {
+                        who: data.who,
+                        when: new Date().getTime()
+                    }, logMessage);
+                }
+
+                who = data.who;
+            }
+            else {
+                if (socket != null) {
+                    socket.emit("i.am", {
+                        who: who,
+                        when: new Date().getTime()
+                    }, logMessage);
+                }
+            }
         };
 
-        var tellOther = function (what) {
-            socket.emit("tell.other", {
-                who: who,
-                what: what,
-                when: new Date().getTime()
-            }, logMessage);
+        var tellOther = function (data) {
+            if (socket != null) {
+                var enhancedData = {
+                    who: who,
+                    what: data.what,
+                    when: new Date().getTime()
+                };
+
+                socket.emit("tell.other", enhancedData, logMessage);
+            }
+        };
+
+        var tellSomeone = function (data) {
+            if (socket != null) {
+                var enhancedData = {
+                    who: who,
+                    whom: data.whom,
+                    what: data.what,
+                    when: new Date().getTime()
+                };
+
+                socket.emit("tell.someone", enhancedData, logMessage);
+            }
         };
 
         var whoAreThere = function () {
-            socket.emit("who.are.there", null, logMessage);
+            if (socket != null) {
+                socket.emit("who.are.there", null, logMessage);
+            }
         };
 
         var replContext = repl.start({
