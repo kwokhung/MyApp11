@@ -7,7 +7,7 @@ var main = function () {
     ], function (array, repl, util, io) {
         var resourceUrl = (process.argv[2] ? process.argv[2] : "");
 
-        var who = (process.argv[3] ? process.argv[3] : "");
+        var who = (process.argv[3] ? process.argv[3] : "anonymous");
 
         var socket = io.connect(resourceUrl, { "force new connection": false });
 
@@ -154,8 +154,6 @@ var main = function () {
                         when: new Date().getTime()
                     }, logMessage);
                 }
-
-                who = data.who;
             }
             else {
                 if (socket != null) {
@@ -165,6 +163,8 @@ var main = function () {
                     }, logMessage);
                 }
             }
+
+            who = "anonymous";
         };
 
         var tellOther = function (data) {
