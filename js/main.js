@@ -40,13 +40,21 @@ var main = function () {
                     appendMessage("you.are", data.who);
                 });
 
+                socket.on("you.are.no.more", function (data) {
+                    appendMessage("you.are.no.more", data.who);
+                });
+
                 socket.on("he.is", function (data) {
                     appendMessage("he.is", data.who);
                 });
 
+                socket.on("he.is.no.more", function (data) {
+                    appendMessage("he.is.no.more", data.who);
+                });
+
                 socket.on("there.are", function (data) {
                     array.forEach(data.who, function (item, index) {
-                        appendMessage("there.are", item.id);
+                        appendMessage("there.are", item.who);
                     });
                 });
 
@@ -75,6 +83,10 @@ var main = function () {
 
                 socket.on("someone.joined", function (data) {
                     appendMessage("someone.joined", data.who);
+                });
+
+                socket.on("someone.left", function (data) {
+                    appendMessage("someone.left", data.who);
                 });
 
                 socket.on("someone.beat", function (data) {
@@ -134,6 +146,27 @@ var main = function () {
             }
         };
 
+        var iAmNoMore = function (data) {
+            if (typeof data != "undefined" && typeof data.who != "undefined" && data.who != null && data.who != "") {
+                if (socket != null) {
+                    socket.emit("i.am.no.more", {
+                        who: data.who,
+                        when: new Date().getTime()
+                    }, logMessage);
+                }
+
+                who = data.who;
+            }
+            else {
+                if (socket != null) {
+                    socket.emit("i.am.no.more", {
+                        who: who,
+                        when: new Date().getTime()
+                    }, logMessage);
+                }
+            }
+        };
+
         var tellOther = function (data) {
             if (socket != null) {
                 var enhancedData = {
@@ -175,6 +208,11 @@ var main = function () {
 
         replContext.socket = socket;
         replContext.logMessage = logMessage;
+        replContext.iAm = iAm;
+        replContext.iAmNoMore = iAmNoMore;
+        replContext.tellOther = tellOther;
+        replContext.tellSomeone = tellSomeone;
+        replContext.whoAreThere = whoAreThere;
 
         handleMessage();
     });
