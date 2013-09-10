@@ -112,6 +112,34 @@ public class Startup
             }).ToArray();
         }
 
+        winQuery = new ObjectQuery("Select * From Win32_Service Where Name Like 'SQL%'");
+
+        searcher = new ManagementObjectSearcher(winQuery);
+
+        Object[] services = new Object[] { };
+
+        foreach (ManagementObject item in searcher.Get())
+        {
+            services = services.Concat(new[]
+            {
+                new
+                {
+                    name = item["Name"],
+                    caption = item["Caption"],
+                    displayName = item["DisplayName"],
+                    description = item["Description"],
+                    pathName = item["PathName"],
+                    startMode = item["StartMode"],
+                    started = item["Started"],
+                    startName = item["StartName"],
+                    state = item["State"],
+                    processId = item["ProcessId"],
+                    exitCode = item["ExitCode"],
+                    status = item["Status"],
+                }
+            }).ToArray();
+        }
+
         return new
         {
             data = new
@@ -120,7 +148,8 @@ public class Startup
                 computerSystem = computerSystems[0],
                 operatingSystem = operatingSystems[0],
                 disks = disks,
-                processes = processes
+                processes = processes,
+                services = services
             }
         };
     }
