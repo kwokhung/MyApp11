@@ -7,19 +7,67 @@ public class Startup
 {
     public async Task<object> Invoke(dynamic input)
     {
-        ObjectQuery winQuery = new ObjectQuery("SELECT * FROM Win32_LogicalDisk");
+        ObjectQuery winQuery = new ObjectQuery("Select * From Win32_ComputerSystem");
 
         ManagementObjectSearcher searcher = new ManagementObjectSearcher(winQuery);
+
+        Object[] computerSystems = new Object[] { };
+
+        foreach (ManagementObject item in searcher.Get())
+        {
+            computerSystems = computerSystems.Concat(new[]
+            {
+                new
+                {
+                    name = item["Name"],
+                    description = item["Description"],
+                    domain = item["Domain"],
+                    manufacturer = item["Manufacturer"],
+                    systemType = item["SystemType"],
+                    totalPhysicalMemory = item["TotalPhysicalMemory"],
+                    status = item["Status"]
+                }
+            }).ToArray();
+        }
+
+        winQuery = new ObjectQuery("Select * From Win32_OperatingSystem");
+
+        searcher = new ManagementObjectSearcher(winQuery);
+
+        Object[] operatingSystems = new Object[] { };
+
+        foreach (ManagementObject item in searcher.Get())
+        {
+            operatingSystems = operatingSystems.Concat(new[]
+            {
+                new
+                {
+                    caption = item["Caption"],
+                    version = item["Version"],
+                    csdVersion = item["CSDVersion"],
+                    osArchitecture = item["OSArchitecture"],
+                    manufacturer = item["Manufacturer"],
+                    freePhysicalMemory = item["FreePhysicalMemory"],
+                    freeVirtualMemory = item["FreeVirtualMemory"],
+                    localDateTime = ManagementDateTimeConverter.ToDateTime(item["LocalDateTime"].ToString()).ToString("yyyyMMddHHmmss"),
+                    status = item["Status"]
+                }
+            }).ToArray();
+        }
+
+        winQuery = new ObjectQuery("Select * From Win32_LogicalDisk Where DriveType = 3");
+
+        searcher = new ManagementObjectSearcher(winQuery);
 
         Object[] disks = new Object[] { };
 
         foreach (ManagementObject item in searcher.Get())
         {
-            Console.WriteLine("Name = " + item["Name"]);
+            /*Console.WriteLine("Name = " + item["Name"]);
             Console.WriteLine("Size = {0:#,###.##} bytes", item["Size"]);
             Console.WriteLine("Size = {0:#,###.##} GB", (double)Convert.ToInt64(item["Size"]) / 1024 / 1024 / 1024);
             Console.WriteLine("FreeSpace = {0:#,###.##} bytes", item["FreeSpace"]);
-            Console.WriteLine("FreeSpace = {0:#,###.##} GB", (double)Convert.ToInt64(item["FreeSpace"]) / 1024 / 1024 / 1024);
+            Console.WriteLine("FreeSpace = {0:#,###.##} GB", (double)Convert.ToInt64(item["FreeSpace"]) / 1024 / 1024 / 1024);*/
 
             disks = disks.Concat(new[]
             {
@@ -32,7 +80,7 @@ public class Startup
             }).ToArray();
         }
 
-        winQuery = new ObjectQuery("Select * from Win32_Process");
+        winQuery = new ObjectQuery("Select * From Win32_Process Where Name Like 'SQL%'");
 
         searcher = new ManagementObjectSearcher(winQuery);
 
@@ -40,15 +88,15 @@ public class Startup
 
         foreach (ManagementObject item in searcher.Get())
         {
-            Console.WriteLine("Name = " + item["Name"]);
-            Console.WriteLine("ProcessId = " + item["ProcessId"]);
+            /*Console.WriteLine("Name = " + item["Name"]);
+            Console.WriteLine("ProcessId = " + item["ProcessId"]);*/
 
             String[] outputFields = new String[2];
             item.InvokeMethod("GetOwner", (Object[])outputFields);
-            Console.WriteLine("User = " + outputFields[1] + "\\" + outputFields[0]);
+            /*Console.WriteLine("User = " + outputFields[1] + "\\" + outputFields[0]);
             Console.WriteLine("CreationDate = " + item["CreationDate"]);
             Console.WriteLine("Priority = " + item["Priority"]);
-            Console.WriteLine("WorkingSetSize = {0:#,###.##} KB", (double)Convert.ToInt64(item["WorkingSetSize"]) / 1024);
+            Console.WriteLine("WorkingSetSize = {0:#,###.##} KB", (double)Convert.ToInt64(item["WorkingSetSize"]) / 1024);*/
 
             processes = processes.Concat(new[]
             {
@@ -57,7 +105,7 @@ public class Startup
                     name = item["Name"],
                     processId = item["ProcessId"],
                     user = outputFields[1] + "\\" + outputFields[0],
-                    creationDate = item["CreationDate"],
+                    creationDate = ManagementDateTimeConverter.ToDateTime(item["CreationDate"].ToString()).ToString("yyyyMMddHHmmss"),
                     priority = item["Priority"],
                     workingSetSize = item["WorkingSetSize"],
                 }
@@ -69,10 +117,8 @@ public class Startup
             data = new
             {
                 who = input.data.who,
-                OSVersion = Environment.OSVersion.ToString(),
-                MachineName = Environment.MachineName,
-                UserName = Environment.UserName,
-                UserDomainName = Environment.UserDomainName,
+                computerSystem = computerSystems[0],
+                operatingSystem = operatingSystems[0],
                 disks = disks,
                 processes = processes
             }
