@@ -201,8 +201,6 @@ var main = function () {
                                 whom: data.who,
                                 what: {
                                     toDo: "updateHisDetails",
-                                    platform: process.platform,
-                                    arch: process.arch,
                                     details: result.data
                                 }
                             });
