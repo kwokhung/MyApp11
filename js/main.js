@@ -1,3 +1,73 @@
+Date.prototype.yyyyMMddHHmmss = function () {
+    var date = this;
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var ss = date.getSeconds();
+
+    return "" + year +
+    (month < 10 ? "0" + month : month) +
+    (day < 10 ? "0" + day : day) +
+    (hh < 10 ? "0" + hh : hh) +
+    (mm < 10 ? "0" + mm : mm) +
+    (ss < 10 ? "0" + ss : ss);
+};
+
+Date.prototype.dateFormat = function () {
+    var date = this;
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var ss = date.getSeconds();
+
+    return "" + year + "-" +
+    (month < 10 ? "0" + month : month) + "-" +
+    (day < 10 ? "0" + day : day) + " " +
+    (hh < 10 ? "0" + hh : hh) + ":" +
+    (mm < 10 ? "0" + mm : mm) + ":" +
+    (ss < 10 ? "0" + ss : ss);
+};
+
+String.prototype.dateFormat = function () {
+    var that = this.toString();
+
+    var date = new Date(that.substring(0, 4), that.substring(4, 6) - 1, that.substring(6, 8), that.substring(8, 10), that.substring(10, 12), that.substring(12));
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var ss = date.getSeconds();
+
+    return "" + year + "-" +
+    (month < 10 ? "0" + month : month) + "-" +
+    (day < 10 ? "0" + day : day) + " " +
+    (hh < 10 ? "0" + hh : hh) + ":" +
+    (mm < 10 ? "0" + mm : mm) + ":" +
+    (ss < 10 ? "0" + ss : ss);
+};
+
+Number.prototype.dateFormat = function () {
+    var date = new Date(this);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hh = date.getHours();
+    var mm = date.getMinutes();
+    var ss = date.getSeconds();
+
+    return "" + year + "-" +
+    (month < 10 ? "0" + month : month) + "-" +
+    (day < 10 ? "0" + day : day) + " " +
+    (hh < 10 ? "0" + hh : hh) + ":" +
+    (mm < 10 ? "0" + mm : mm) + ":" +
+    (ss < 10 ? "0" + ss : ss);
+};
+
 var main = function () {
     require([
         "dojo/_base/array",
@@ -17,7 +87,12 @@ var main = function () {
         };
 
         var logMessage = function (data) {
-            appendMessage("System", data.message);
+            if (data.status) {
+                appendMessage("System (Succeeded)", data.message);
+            }
+            else {
+                appendMessage("System (Failed)", data.message);
+            }
         };
 
         var handleMessage = function () {
@@ -28,56 +103,7 @@ var main = function () {
             socket.on("connect", function () {
                 appendMessage("System", "connect");
 
-                socket.on("heartbeat", function (data) {
-                    appendMessage("heartbeat", data.when);
-
-                    socket.emit("heartbeat", {
-                        who: who,
-                        when: new Date().getTime()
-                    }, logMessage);
-                });
-
-                socket.on("you.are", function (data) {
-                    appendMessage("you.are", data.who);
-                });
-
-                socket.on("you.are.no.more", function (data) {
-                    appendMessage("you.are.no.more", data.who);
-                });
-
-                socket.on("he.is", function (data) {
-                    appendMessage("he.is", data.who);
-                });
-
-                socket.on("he.is.no.more", function (data) {
-                    appendMessage("he.is.no.more", data.who);
-                });
-
-                socket.on("there.are", function (data) {
-                    array.forEach(data.who, function (item, index) {
-                        appendMessage("there.are", item.who);
-                    });
-                });
-
-                socket.on("someone.said", function (data) {
-                    appendMessage("someone.said", data.what + " by " + data.who);
-
-                    if (typeof data.what.toDo != "undefined" && data.what.toDo != null) {
-                        whatToDo(data);
-                    }
-                });
-
-                socket.on("someone.joined", function (data) {
-                    appendMessage("someone.joined", data.who);
-                });
-
-                socket.on("someone.left", function (data) {
-                    appendMessage("someone.left", data.who);
-                });
-
-                socket.on("someone.beat", function (data) {
-                    appendMessage("someone.beat", data.when + " by " + data.who);
-                });
+                handleConnectMessage();
 
                 iAm();
             });
@@ -111,12 +137,65 @@ var main = function () {
             });
         };
 
+        var handleConnectMessage = function () {
+            socket.on("heartbeat", function (data) {
+                appendMessage("heartbeat", data.when);
+
+                socket.emit("heartbeat", {
+                    who: who,
+                    when: new Date().yyyyMMddHHmmss()
+                }, logMessage);
+            });
+
+            socket.on("you.are", function (data) {
+                appendMessage("you.are", data.who);
+            });
+
+            socket.on("you.are.no.more", function (data) {
+                appendMessage("you.are.no.more", data.who);
+            });
+
+            socket.on("he.is", function (data) {
+                appendMessage("he.is", data.who);
+            });
+
+            socket.on("he.is.no.more", function (data) {
+                appendMessage("he.is.no.more", data.who);
+            });
+
+            socket.on("there.are", function (data) {
+                array.forEach(data.who, function (item, index) {
+                    appendMessage("there.are", item.who);
+                });
+            });
+
+            socket.on("someone.said", function (data) {
+                appendMessage("someone.said", data.what + " by " + data.who);
+
+                if (typeof data.what.toDo != "undefined" && data.what.toDo != null) {
+                    whatToDo(data);
+                }
+            });
+
+            socket.on("someone.joined", function (data) {
+                appendMessage("someone.joined", data.who);
+            });
+
+            socket.on("someone.left", function (data) {
+                appendMessage("someone.left", data.who);
+            });
+
+            socket.on("someone.beat", function (data) {
+                appendMessage("someone.beat", data.when + " by " + data.who);
+            });
+        };
+
         var iAm = function (data) {
             if (typeof data != "undefined" && typeof data.who != "undefined" && data.who != null && data.who != "") {
                 if (socket != null) {
                     socket.emit("i.am", {
                         who: data.who,
-                        when: new Date().getTime()
+                        when: new Date().yyyyMMddHHmmss()
                     }, logMessage);
                 }
 
@@ -126,7 +205,7 @@ var main = function () {
                 if (socket != null) {
                     socket.emit("i.am", {
                         who: who,
-                        when: new Date().getTime()
+                        when: new Date().yyyyMMddHHmmss()
                     }, logMessage);
                 }
             }
@@ -137,7 +216,7 @@ var main = function () {
                 if (socket != null) {
                     socket.emit("i.am.no.more", {
                         who: data.who,
-                        when: new Date().getTime()
+                        when: new Date().yyyyMMddHHmmss()
                     }, logMessage);
                 }
             }
@@ -145,7 +224,7 @@ var main = function () {
                 if (socket != null) {
                     socket.emit("i.am.no.more", {
                         who: who,
-                        when: new Date().getTime()
+                        when: new Date().yyyyMMddHHmmss()
                     }, logMessage);
                 }
             }
@@ -158,7 +237,7 @@ var main = function () {
                 socket.emit("tell.other", {
                     who: who,
                     what: data.what,
-                    when: new Date().getTime()
+                    when: new Date().yyyyMMddHHmmss()
                 }, logMessage);
             }
         };
@@ -169,7 +248,7 @@ var main = function () {
                     who: who,
                     whom: data.whom,
                     what: data.what,
-                    when: new Date().getTime()
+                    when: new Date().yyyyMMddHHmmss()
                 }, logMessage);
             }
         };
