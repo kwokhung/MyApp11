@@ -78,7 +78,7 @@ var main = function () {
     ], function (array, repl, util, io, edge) {
         var resourceUrl = (process.argv[2] ? process.argv[2] : "");
 
-        var who = (process.argv[3] ? process.argv[3] : "anonymous");
+        var who = "anonymous";
 
         var socket = io.connect(resourceUrl, { "force new connection": false });
 
@@ -105,7 +105,9 @@ var main = function () {
 
                 handleConnectMessage();
 
-                iAm();
+                iAm({
+                    whoAmI: (process.argv[3] ? process.argv[3] : who)
+                });
             });
 
             socket.on("connect_failed", function (e) {
@@ -191,20 +193,29 @@ var main = function () {
         };
 
         var iAm = function (data) {
-            if (typeof data != "undefined" && typeof data.who != "undefined" && data.who != null && data.who != "") {
+            if (typeof data != "undefined" && typeof data.whoAmI != "undefined" && data.whoAmI != null && data.whoAmI != "") {
                 if (socket != null) {
                     socket.emit("i.am", {
-                        who: data.who,
+                        who: who,
+                        whoAmI: data.whoAmI,
                         when: new Date().yyyyMMddHHmmss()
-                    }, logMessage);
-                }
+                    }, function (result) {
+                        if (result.status) {
+                            logMessage(result);
 
-                who = data.who;
+                            who = data.whoAmI;
+                        }
+                        else {
+                            logMessage(result);
+                        }
+                    });
+                }
             }
             else {
                 if (socket != null) {
                     socket.emit("i.am", {
                         who: who,
+                        whoAmI: who,
                         when: new Date().yyyyMMddHHmmss()
                     }, logMessage);
                 }
@@ -212,24 +223,42 @@ var main = function () {
         };
 
         var iAmNoMore = function (data) {
-            if (typeof data != "undefined" && typeof data.who != "undefined" && data.who != null && data.who != "") {
+            if (typeof data != "undefined" && typeof data.whoAmI != "undefined" && data.whoAmI != null && data.whoAmI != "") {
                 if (socket != null) {
                     socket.emit("i.am.no.more", {
-                        who: data.who,
+                        who: who,
+                        whoAmI: data.whoAmI,
                         when: new Date().yyyyMMddHHmmss()
-                    }, logMessage);
+                    }, function (result) {
+                        if (result.status) {
+                            logMessage(result);
+
+                            who = "anonymous";
+                        }
+                        else {
+                            logMessage(result);
+                        }
+                    });
                 }
             }
             else {
                 if (socket != null) {
                     socket.emit("i.am.no.more", {
                         who: who,
+                        whoAmI: who,
                         when: new Date().yyyyMMddHHmmss()
-                    }, logMessage);
+                    }, function (result) {
+                        if (result.status) {
+                            logMessage(result);
+
+                            who = "anonymous";
+                        }
+                        else {
+                            logMessage(result);
+                        }
+                    });
                 }
             }
-
-            who = "anonymous";
         };
 
         var tellOther = function (data) {
