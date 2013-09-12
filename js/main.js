@@ -86,12 +86,12 @@ var main = function () {
             console.log("%s: %s", label, message);
         };
 
-        var logMessage = function (data) {
-            if (data.status) {
-                appendMessage("System (Succeeded)", data.message);
+        var logMessage = function (result) {
+            if (result.status) {
+                appendMessage("System (Succeeded)", result.message);
             }
             else {
-                appendMessage("System (Failed)", data.message);
+                appendMessage("System (Failed)", result.message);
             }
         };
 
@@ -284,7 +284,10 @@ var main = function () {
 
         var whoAreThere = function () {
             if (socket != null) {
-                socket.emit("who.are.there", null, logMessage);
+                socket.emit("who.are.there", {
+                    who: who,
+                    when: new Date().yyyyMMddHHmmss()
+                }, logMessage);
             }
         };
 
