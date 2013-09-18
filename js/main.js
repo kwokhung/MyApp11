@@ -105,6 +105,10 @@ var main = function () {
 
                 handleConnectMessage();
 
+                iAmNoMore({
+                    whoAmI: (process.argv[3] ? process.argv[3] : who)
+                });
+
                 iAm({
                     whoAmI: (process.argv[3] ? process.argv[3] : who)
                 });
