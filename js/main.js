@@ -147,10 +147,7 @@ var main = function () {
             socket.on("heartbeat", function (data) {
                 appendMessage("heartbeat", data.when);
 
-                socket.emit("heartbeat", {
-                    who: who,
-                    when: new Date().yyyyMMddHHmmss()
-                }, logMessage);
+                heartbeat();
             });
 
             socket.on("you.are", function (data) {
@@ -199,7 +196,7 @@ var main = function () {
         var iAm = function (data) {
             if (typeof data != "undefined" && typeof data.whoAmI != "undefined" && data.whoAmI != null && data.whoAmI != "") {
                 if (socket != null) {
-                    socket.emit("i.am", {
+                    socket.emit("resource:i.am", {
                         who: who,
                         whoAmI: data.whoAmI,
                         when: new Date().yyyyMMddHHmmss()
@@ -217,7 +214,7 @@ var main = function () {
             }
             else {
                 if (socket != null) {
-                    socket.emit("i.am", {
+                    socket.emit("resource:i.am", {
                         who: who,
                         whoAmI: who,
                         when: new Date().yyyyMMddHHmmss()
@@ -229,7 +226,7 @@ var main = function () {
         var iAmNoMore = function (data) {
             if (typeof data != "undefined" && typeof data.whoAmI != "undefined" && data.whoAmI != null && data.whoAmI != "") {
                 if (socket != null) {
-                    socket.emit("i.am.no.more", {
+                    socket.emit("resource:i.am.no.more", {
                         who: who,
                         whoAmI: data.whoAmI,
                         when: new Date().yyyyMMddHHmmss()
@@ -247,7 +244,7 @@ var main = function () {
             }
             else {
                 if (socket != null) {
-                    socket.emit("i.am.no.more", {
+                    socket.emit("resource:i.am.no.more", {
                         who: who,
                         whoAmI: who,
                         when: new Date().yyyyMMddHHmmss()
@@ -265,9 +262,18 @@ var main = function () {
             }
         };
 
+        var heartbeat = function () {
+            if (socket != null) {
+                socket.emit("resource:heartbeat", {
+                    who: who,
+                    when: new Date().yyyyMMddHHmmss()
+                }, logMessage);
+            }
+        };
+
         var tellOther = function (data) {
             if (socket != null) {
-                socket.emit("tell.other", {
+                socket.emit("resource:tell.other", {
                     who: who,
                     what: data.what,
                     when: new Date().yyyyMMddHHmmss()
@@ -277,7 +283,7 @@ var main = function () {
 
         var tellSomeone = function (data) {
             if (socket != null) {
-                socket.emit("tell.someone", {
+                socket.emit("resource:tell.someone", {
                     who: who,
                     whom: data.whom,
                     what: data.what,
@@ -288,7 +294,7 @@ var main = function () {
 
         var whoAreThere = function () {
             if (socket != null) {
-                socket.emit("who.are.there", {
+                socket.emit("resource:who.are.there", {
                     who: who,
                     when: new Date().yyyyMMddHHmmss()
                 }, logMessage);
@@ -338,6 +344,7 @@ var main = function () {
         replContext.logMessage = logMessage;
         replContext.iAm = iAm;
         replContext.iAmNoMore = iAmNoMore;
+        replContext.heartbeat = heartbeat;
         replContext.tellOther = tellOther;
         replContext.tellSomeone = tellSomeone;
         replContext.whoAreThere = whoAreThere;
