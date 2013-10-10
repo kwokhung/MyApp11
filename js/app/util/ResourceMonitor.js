@@ -2,19 +2,19 @@
     "dojo/_base/declare",
     "dojo/_base/lang",
     "dojo/node!repl",
-    "dojo/node!util",
     "dojo/node!socket.io-client",
-    "dojo/node!edge",
     "app/util/ResourceConnectionHelper",
     "app/util/ResourceInboundHelper",
+    "app/util/ResourceTodoHelper",
     "app/util/ResourceOutboundHelper"
-], function (declare, lang, repl, util, io, edge, ResourceConnectionHelper, ResourceInboundHelper, ResourceOutboundHelper) {
+], function (declare, lang, repl, io, ResourceConnectionHelper, ResourceInboundHelper, ResourceTodoHelper, ResourceOutboundHelper) {
     return declare("app.util.ResourceMonitor", null, {
         resourceUrl: null,
         who: "anonymous",
         socket: null,
         resourceConnectionHelper: null,
         resourceInboundHelper: null,
+        resourceTodoHelper: null,
         resourceOutboundHelper: null,
         replContext: null,
         constructor: function (kwArgs) {
@@ -78,36 +78,6 @@
         whoAreThere: function () {
             this.resourceOutboundHelper.handleWhoAreThere();
         },
-        whatToDo: function (data) {
-            switch (data.what.toDo) {
-                case "updateYourDetails":
-                    edge.func("cs", {
-                        source: "C:\\Projects\\MyApp11\\cs\\GetMyDetails.cs",
-                        references: ["System.Management.dll"]
-                    })({
-                        data: {
-                            who: this.who
-                        }
-                    }, lang.hitch(this, function (error, result) {
-                        if (error) {
-                            this.appendMessage({ who: "edge", what: util.inspect(error, { showHidden: false, depth: 2 }) });
-                        }
-                        else {
-                            this.appendMessage({ who: "edge", what: util.inspect(result, { showHidden: false, depth: 5 }) });
-
-                            this.tellSomeone({
-                                whom: data.who,
-                                what: {
-                                    toDo: "updateHisDetails",
-                                    details: result.data
-                                }
-                            });
-                        }
-                    }));
-
-                    break;
-            }
-        },
         postCreate: function () {
             this.inherited(arguments);
 
@@ -116,6 +86,10 @@
             });
 
             this.resourceInboundHelper = new ResourceInboundHelper({
+                resourceMonitor: this
+            });
+
+            this.resourceTodoHelper = new ResourceTodoHelper({
                 resourceMonitor: this
             });
 

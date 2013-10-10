@@ -44,7 +44,7 @@
                 this.resourceMonitor.appendMessage({ who: "someone.said", what: data.what + " by " + data.who });
 
                 if (typeof data.what.toDo != "undefined" && data.what.toDo != null) {
-                    this.resourceMonitor.whatToDo(data);
+                    this.resourceMonitor.resourceTodoHelper.whatToDo(data);
                 }
             }));
 
