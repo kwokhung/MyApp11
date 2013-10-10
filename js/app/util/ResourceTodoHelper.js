@@ -1,10 +1,9 @@
 ﻿define([
     "dojo/_base/declare",
     "dojo/_base/lang",
-    "dojo/_base/array",
     "dojo/node!util",
     "dojo/node!edge"
-], function (declare, lang, array, util, edge) {
+], function (declare, lang, util, edge) {
     return declare("app.util.ResourceTodoHelper", null, {
         resourceMonitor: null,
         constructor: function (kwArgs) {
