@@ -43,7 +43,7 @@
             this.resourceMonitor.socket.on("someone.said", lang.hitch(this, function (data) {
                 this.resourceMonitor.appendMessage({ who: "someone.said", what: data.what + " by " + data.who });
 
-                if (typeof data.what.toDo != "undefined" && data.what.toDo != null) {
+                if (typeof data.what != "undefined" && data.what != null && typeof data.what.toDo != "undefined" && data.what.toDo != null) {
                     this.resourceMonitor.resourceTodoHelper.whatToDo(data);
                 }
             }));
