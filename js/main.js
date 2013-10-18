@@ -68,10 +68,10 @@ Number.prototype.dateFormat = function () {
     (ss < 10 ? "0" + ss : ss);
 };
 
-var main = function () {
-    require([
-        "app/util/ResourceMonitor"
-    ], function (ResourceMonitor) {
+define([
+    "app/util/ResourceMonitor"
+], function (ResourceMonitor) {
+    return function () {
         var resourceMonitor = new ResourceMonitor();
 
         resourceMonitor.postCreate();
@@ -79,10 +79,5 @@ var main = function () {
         resourceMonitor.setResourceUrl({
             url: (process.argv[2] ? process.argv[2] : "")
         });
-    });
-};
-
-define([
-], function () {
-    return main;
+    };
 });
