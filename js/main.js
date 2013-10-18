@@ -81,3 +81,8 @@ var main = function () {
         });
     });
 };
+
+define([
+], function () {
+    return main;
+});
